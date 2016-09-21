@@ -8,7 +8,7 @@ fiveRands :: [Integer]
 fiveRands = take 5 (map fst (iterate (rand . snd) (rand $ mkSeed 1)))
 
 
-randLetter :: Seed -> Gen Char
+randLetter :: Gen Char
 randLetter seed = (rndchar,newSeed)
   where
     rndTupel = rand seed
@@ -19,54 +19,41 @@ randLetter seed = (rndchar,newSeed)
 randString3 :: String
 randString3 = take 3 $ map fst $ iterate (randLetter . snd) (randLetter $ mkSeed 1)
 
-type Gen a = (a,Seed)
-type Gen' a = Seed -> (a,Seed)
 
-randEven :: Seed -> Gen Integer -- the output of rand * 2
-randEven seed = (doubledValue,snd rndTupel)
-  where
-    rndTupel = rand seed
-    doubledValue = (*) 2 $ fst rndTupel
+type Gen a = Seed -> (a,Seed)
 
-randOdd :: Seed ->  Gen Integer -- the output of rand * 2 + 1
-randOdd seed = (modifiedValue,snd rndTupel)
+randEven :: Gen Integer -- the output of rand * 2
+randEven seed = (doubledValue,seed')
   where
-    rndTupel = randEven seed
-    modifiedValue = (+) 1 $ fst rndTupel
+    (rnd,seed') = rand seed
+    doubledValue = (*) 2 rnd
 
-randTen :: Seed ->  Gen Integer -- the output or rand * 10
-randTen seed = (modifiedValue, snd rndTupel)
+randOdd :: Gen Integer -- the output of rand * 2 + 1
+randOdd seed = (modifiedValue,seed')
   where
-    rndTupel = rand seed
-    modifiedValue = (*) 10 $ fst rndTupel
+    (rnd,seed') = randEven seed
+    modifiedValue = (+) 1 rnd
+
+randTen :: Gen Integer -- the output of rand * 10
+randTen seed = (modifiedValue, seed')
+  where
+    (rnd,seed') = rand seed
+    modifiedValue = (*) 10 rnd
 
 
 randA :: (a -> b) -> Gen a -> Gen b
-randA f (a,seed) = (f a,seed)
+randA f gen = \s -> (f $ fst $ gen s, snd $ gen s)
 
-randA' :: (a -> b) -> Gen' a -> Gen' b
-randA' f = aplicationFunc f . getTuple
-  where
-    getTuple = rand
-    aplicationFunc f = (\(a,newSeed) -> (f a, newSeed))
 
-randEven' :: Seed -> Gen Integer
-randEven' seed = modifiedTupel
-  where
-    rndTupel = rand seed
-    modifiedTupel = randA (\x -> (*) x 2) rndTupel
+randEven' :: Gen Integer
+randEven' = randA (* 2) rand
 
-randOdd' :: Seed -> Gen Integer
-randOdd' seed = modifiedTupel
-      where
-        rndTupel = randEven' seed
-        modifiedTupel = randA (\x -> (+) x 1) rndTupel
+randOdd' :: Gen Integer
+randOdd' = randA (+ 1) randEven'
 
-randTen' :: Seed -> Gen Integer
-randTen' seed = modifiedTupel
-  where
-    rndTupel = rand seed
-    modifiedTupel = randA (\x -> (*) x 10) rndTupel
+randTen' :: Gen Integer
+randTen' = randA (* 10) rand
+
 
 valuesList :: [Integer]
 valuesList = map fst [randEven' $ mkSeed 1,randOdd' $ mkSeed 1, randTen' $ mkSeed 1]
