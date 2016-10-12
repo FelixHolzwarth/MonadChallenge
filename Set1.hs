@@ -9,11 +9,10 @@ fiveRands = take 5 (map fst (iterate (rand . snd) (rand $ mkSeed 1)))
 
 
 randLetter :: Gen Char
-randLetter seed = (rndchar,newSeed)
+randLetter seed = (rndchar,seed')
   where
-    rndTupel = rand seed
-    rndchar    = toLetter $ fst rndTupel
-    newSeed = snd rndTupel
+    (rnd,seed') = rand seed
+    rndchar    = toLetter rnd
 
 
 randString3 :: String
@@ -57,3 +56,15 @@ randTen' = randA (* 10) rand
 
 valuesList :: [Integer]
 valuesList = map fst [randEven' $ mkSeed 1,randOdd' $ mkSeed 1, randTen' $ mkSeed 1]
+
+randPair :: Gen (Char, Integer) -- :: Seed -> ((Char,Integer),Seed)
+randPair seed = ((rndLet,rnd),seed'')
+  where
+    (rndLet,seed') = randLetter seed
+    (rnd,seed'')   = rand seed'
+
+
+generalPair :: Gen a -> Gen b -> Gen (a,b)
+generalPair genA genB = \s -> let (rndA,s1) = genA s
+                                  (rndB,s2) = genB s1
+                              in ((rndA,rndB),s2)
