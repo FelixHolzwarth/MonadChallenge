@@ -80,6 +80,6 @@ generalPair2 genA genB = generalB (,) genA genB
 repRandom :: [Gen a] -> Gen [a]
 repRandom lst = \s -> repRandomHelper lst [] s
   where
-    repRandomHelper [] acc s     = acc
+    repRandomHelper [] acc s     = (acc,s)
     repRandomHelper (x:xs) acc s = let (rnd,s1) = x s
-                                   in repRandomHelper xs rnd:acc s1 
+                                   in repRandomHelper xs rnd:acc s1
