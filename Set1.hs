@@ -68,3 +68,18 @@ generalPair :: Gen a -> Gen b -> Gen (a,b)
 generalPair genA genB = \s -> let (rndA,s1) = genA s
                                   (rndB,s2) = genB s1
                               in ((rndA,rndB),s2)
+
+generalB ::(a -> b -> c) ->  Gen a -> Gen b -> Gen c
+generalB construct genA genB = \s -> let (rndA,s1) = genA s
+                                         (rndB,s2) = genB s1
+                                      in ((construct rndA rndB),s2)
+
+generalPair2 :: Gen a -> Gen b -> Gen (a,b)
+generalPair2 genA genB = generalB (,) genA genB
+
+repRandom :: [Gen a] -> Gen [a]
+repRandom lst = \s -> repRandomHelper lst [] s
+  where
+    repRandomHelper [] acc s     = acc
+    repRandomHelper (x:xs) acc s = let (rnd,s1) = x s
+                                   in repRandomHelper xs rnd:acc s1 
