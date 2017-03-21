@@ -83,3 +83,12 @@ repRandom lst = \s -> repRandomHelper lst [] s
     repRandomHelper [] acc s     = (reverse acc,s)
     repRandomHelper (x:xs) acc s = let (rnd,s1) = x s
                                    in repRandomHelper xs (rnd:acc) s1
+
+exampleUse = repRandom (replicate 3 randLetter) (mkSeed 1)
+
+genTwo :: Gen a -> (a -> Gen b) -> Gen b
+genTwo genA handler = \s -> let (rndA,s1) = genA s
+                            in handler rndA s1
+
+mkGen :: a -> Gen a
+mkGen a = \s -> (a,s)                            
