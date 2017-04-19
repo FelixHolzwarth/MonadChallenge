@@ -15,3 +15,7 @@ instance Show a => Show (Maybe a) where
 headMay :: [a] -> Maybe a
 headMay (x:_) = Just x
 headMay []     = Nothing
+
+tailMay :: [a] -> Maybe [a]
+tailMay (_:xs) = Just xs
+tailMay []     = Nothing
