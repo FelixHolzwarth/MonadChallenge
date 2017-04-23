@@ -28,4 +28,10 @@ lookupMay elem lst = case filter (\(a,b) -> elem == a) lst of
 
 divMay :: (Eq a, Fractional a) => a -> a -> Maybe a
 divMay _ 0 = Nothing
-divMay a b = Just (div a b)
+divMay a b = Just (a / b)
+
+maximumMay :: Ord a => [a] -> Maybe a
+maximumMay = undefined
+
+minimumMay :: Ord a => [a] -> Maybe a
+minimumMay = undefined
